@@ -16,7 +16,7 @@ class OrderFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
 
     @factory.post_generation
-    def category(self, create, extracted, **kwargs):
+    def product(self, create, extracted, **kwargs):
         if not create:
             return
         if extracted:

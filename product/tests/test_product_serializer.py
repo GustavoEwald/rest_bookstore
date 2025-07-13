@@ -1,7 +1,6 @@
 import pytest
 
 from product.factories import CategoryFactory, ProductFactory
-from product.serializers.category_serializer import CategorySerializer
 from product.serializers.product_serializer import ProductSerializer
 from product.models import Category
 
@@ -20,10 +19,11 @@ def test_product_serializer_output():
     assert data['price'] == product.price
     assert data['active'] == product.active
 
-    factory_slugs = [cat.slug for cat in category_list]
+    assert len(data['category']) == len(category_list)  # Check categories count
     serialized_slugs = data['category']
+    factory_slugs = [cat.slug for cat in category_list]  # Get slugs from factory-created categories
 
-    assert set(serialized_slugs) == set(factory_slugs)
+    assert set(serialized_slugs) == set(factory_slugs)  # Ensure the slugs match
 
 
 @pytest.mark.django_db
@@ -43,7 +43,7 @@ def test_product_serializer_deserialization():
             category1.slug,
             category2.slug,
             category3.slug,
-        ]
+        ],
     }
 
     # Step 3: Create the serializer instance with the input data
@@ -61,9 +61,8 @@ def test_product_serializer_deserialization():
     assert product.price == input_data['price']
     assert product.active == input_data['active']
 
-    # Step 7: Check that the categories are correctly associated with the product
     category_slugs = [category1.slug, category2.slug, category3.slug]
     product_category_slugs = [cat.slug for cat in product.category.all()]
 
-    # Step 8: Assert that the categories linked to the product match the input data categories
+
     assert set(category_slugs) == set(product_category_slugs), f"Expected categories: {category_slugs}, Found: {product_category_slugs}"
