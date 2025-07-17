@@ -3,17 +3,34 @@ from rest_framework import serializers
 from order.models.order import Order
 from product.models.product import Product
 from product.serializers.product_serializer import ProductSerializer
-from django.contrib.auth.models import User
 
 class OrderSerializer(serializers.ModelSerializer):
-    #product = ProductSerializer(many=True, required=True)
-    product = serializers.SlugRelatedField(queryset=Product.objects.all(), slug_field='title', many=True)
+    product = ProductSerializer(many=True, read_only=True)
+
+    product_deserial = serializers.SlugRelatedField(
+        queryset=Product.objects.all(),
+        slug_field='title',
+        many=True,
+        required=True,
+        write_only=True
+    )
+
     total = serializers.SerializerMethodField()
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
 
     def get_total(self, instance):
-        total = sum([product.price for product in instance.product.all()])
+        total = sum(product.price for product in instance.product.all())
         return total
+
     class Meta:
         model = Order
-        fields = ['product', 'total', 'user']
+        fields = ['product', 'product_deserial', 'user', 'total']
+
+    def create(self, validated_data):
+        product_data = validated_data.pop('product_deserial')
+        order = Order.objects.create(**validated_data)
+
+        for product_title in product_data:
+            product_instance = Product.objects.get(title=product_title)
+            order.product.add(product_instance)
+
+        return order
