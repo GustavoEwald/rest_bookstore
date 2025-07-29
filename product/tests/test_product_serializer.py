@@ -19,22 +19,22 @@ def test_product_serializer_serialization():
     assert data['active'] == product.active
     assert len(data['category']) == len(category_list)
     
-    serialized_slugs = data['category']
-    factory_slugs = [cat.slug for cat in category_list]
-    assert set(serialized_slugs) == set(factory_slugs)
+    serialized_category_ids = [cat['id'] for cat in data['category']]
+    factory_category_ids = [cat.id for cat in category_list]
+    assert set(serialized_category_ids) == set(factory_category_ids)
 
 
 @pytest.mark.django_db
 def test_product_serializer_deserialization():    
     category_list = [CategoryFactory() for _ in range(3)]
-    category_list_slugs = [cat.slug for cat in category_list]
+    category_ids = [cat.id for cat in category_list]
 
     input_data = {
         'title': 'Test Product',         
         'description': 'Product description',      
         'price': 87,                          
         'active': True,                         
-        'category': category_list_slugs,
+        'categories_id': category_ids,
     }
 
     serializer = ProductSerializer(data=input_data)
@@ -47,6 +47,5 @@ def test_product_serializer_deserialization():
     assert product.price == input_data['price']
     assert product.active == input_data['active']
 
-    product_category_slugs = [cat.slug for cat in product.category.all()]
-
-    assert set(category_list_slugs) == set(product_category_slugs), f"Expected categories: {category_list_slugs}, Found: {product_category_slugs}"
+    saved_category_ids = list(product.category.values_list('id', flat=True))
+    assert set(saved_category_ids) == set(category_ids)
