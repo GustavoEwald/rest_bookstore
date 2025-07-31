@@ -35,9 +35,9 @@ def test_order_serializer_deserialization():
     product2 = ProductFactory(title="second product", price=100, category=[category1, category2])
 
     data = {
-        "products_id": [
-            product1.id,
-            product2.id
+        "product_deserial": [
+            product1.title,
+            product2.title
         ],
         "user": user.id
     }
@@ -50,8 +50,3 @@ def test_order_serializer_deserialization():
     assert order.product.count() == 2
     assert order.product.filter(title=product1.title).exists()
     assert order.product.filter(title=product2.title).exists()
-
-    order_products_ids = set(order.product.values_list('id', flat=True))
-    expected_product_ids = set([product1.id, product2.id])
-
-    assert order_products_ids == expected_product_ids
