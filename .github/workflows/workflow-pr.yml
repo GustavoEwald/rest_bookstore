@@ -30,7 +30,7 @@ jobs:
               run: |
                 poetry run python manage.py test
             - name: Wemake Python Styleguide
-              uses: wemake-services/wemake-python-styleguide-action@0.16.0
+              uses: wemake-services/wemake-python-styleguide@0.16.0
               continue-on-error: true
               with:
                 reporter: 'github-pr-review'
