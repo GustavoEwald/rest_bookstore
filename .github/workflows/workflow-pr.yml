@@ -29,6 +29,9 @@ jobs:
             - name: Test
               run: |
                 poetry run python manage.py test
+              env:
+                DJANGO_ALLOWED_HOSTS: "localhost 127.0.0.1"
+                SECRET_KEY: "django-rest-framework-secret-key"
             - name: Wemake Python Styleguide
               uses: wemake-services/wemake-python-styleguide@0.16.0
               continue-on-error: true
